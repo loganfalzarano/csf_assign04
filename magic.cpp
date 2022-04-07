@@ -102,7 +102,6 @@ int main(int argc, char **argv) {
   //cast symtab_data_pointer to a (Elf64_Sym *) pointer
   Elf64_Sym * symbol_table_data = (Elf64_Sym *) symtab_data_pointer;
   //gets number of symbols
-  uint32_t num_symbols = symbol_table_section.sh_size;
 
   //get symbol section
   Elf64_Shdr strtab_section = section_headers[strtab_section_index];
@@ -111,7 +110,7 @@ int main(int argc, char **argv) {
   //cast symtab_data_pointer to a (Elf64_Sym *) pointer
   //Elf64_Sym * strtab_data = (Elf64_Sym *) symtab_data_pointer;
   //gets number of symbols
-  //uint32_t num_symbols = symbol_table_section.sh_size;
+  uint32_t num_symbols = symbol_table_section.sh_size / symbol_table_section.sh_entsize;
 
 
   //iterate through all the symbols
@@ -121,20 +120,5 @@ int main(int argc, char **argv) {
     printf("Symbol %ld: name=%s, size=%lx, info=%lx, other=%lx\n", i, symbol_name, curr.st_size, curr.st_info, curr.st_other);
   }
 
-  
-
-  
- // cout << symbol_table_section.sh_name << endl;
- // cout << symbol_table_section.sh_type << endl;
- // cout << symbol_table_section.sh_flags << endl;
- // cout << symbol_table_section.sh_addr << endl;
-//
- // cout << symbol_table_section.sh_offset << endl;
- // cout << symbol_table_section.sh_size << endl;
-//
- // cout << symbol_table_section.sh_link << endl;
- // cout << symbol_table_section.sh_info << endl;
- // cout << symbol_table_section.sh_addralign << endl;
- // cout << symbol_table_section.sh_entsize << endl;
 
 }
