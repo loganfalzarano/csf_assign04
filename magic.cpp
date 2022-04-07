@@ -78,7 +78,13 @@ int main(int argc, char **argv) {
   for (uint32_t i=0; i<num_section_headers; i++) {
     Elf64_Shdr curr = section_headers[i];
     const char *section_name = shstrtab_data + curr.sh_name;
+    if (curr.sh_type == SHT_SYMTAB) {
+      cout << "found it" << endl;
+    }
     printf("Section header %d: name=%s, type=%lx, offset=%lx, size=%lx\n", i, section_name, curr.sh_type, curr.sh_offset, curr.sh_size);
   }
+
+  //get symbol section
+  //uint32_t string_table_section_index = elf_header->e_shstrndx;
 
 }
