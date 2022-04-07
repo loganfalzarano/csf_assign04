@@ -47,7 +47,15 @@ int main(int argc, char **argv) {
   Elf64_Ehdr *elf_header = (Elf64_Ehdr *) data;
   //cout << ".shstrtab section index is %u\n"
 
-  printf(".shstrtab section index is %u\n", elf_header->e_shstrndx);
+  const char * objtype =  get_type_name(elf_header->e_type);
+  const char * machtype = get_machine_name(elf_header->e_machine);
+  const char * endianness;
+  if (elf_header->e_ident[EI_DATA] == 0x01) {
+    endianness = "Little endian\0";
+  } else if (elf_header->e_ident[EI_DATA] == 0x02) {
+    endianness = "Big endian\0";
+  }
+  printf("Object file type: %s\nInstruction set: %s\nEndianness: %s\n", objtype, machtype, endianness);
 
   //gets the index of the headers that contains string table
   uint32_t string_table_section_index = elf_header->e_shstrndx;
@@ -73,18 +81,60 @@ int main(int argc, char **argv) {
   //gets the name of the first section header
   //const char *section_name = shstrtab_data + sec_header->sh_name;
 
-  
-  
+  uint32_t symtab_section_index = 0;
+  uint32_t strtab_section_index = 0;
   for (uint32_t i=0; i<num_section_headers; i++) {
     Elf64_Shdr curr = section_headers[i];
     const char *section_name = shstrtab_data + curr.sh_name;
-    if (curr.sh_type == SHT_SYMTAB) {
-      cout << "found it" << endl;
+    if (curr.sh_type == SHT_SYMTAB && (strcmp(section_name, ".symtab")==0)) { //do we need the first if condition?
+      symtab_section_index = i;
+    }
+    if (curr.sh_type == SHT_STRTAB && (strcmp(section_name, ".strtab")==0)) { //do we need the first if condition?
+      strtab_section_index = i;
     }
     printf("Section header %d: name=%s, type=%lx, offset=%lx, size=%lx\n", i, section_name, curr.sh_type, curr.sh_offset, curr.sh_size);
   }
 
   //get symbol section
-  //uint32_t string_table_section_index = elf_header->e_shstrndx;
+  Elf64_Shdr symbol_table_section = section_headers[symtab_section_index];
+  //gets a pointer to the beginning of the symbol table data
+  const char *symtab_data_pointer = ((char *) data) + symbol_table_section.sh_offset;
+  //cast symtab_data_pointer to a (Elf64_Sym *) pointer
+  Elf64_Sym * symbol_table_data = (Elf64_Sym *) symtab_data_pointer;
+  //gets number of symbols
+  uint32_t num_symbols = symbol_table_section.sh_size;
+
+  //get symbol section
+  Elf64_Shdr strtab_section = section_headers[strtab_section_index];
+  //gets a pointer to the beginning of the strtab data
+  const char *strtab_data_pointer = ((char *) data) + strtab_section.sh_offset;
+  //cast symtab_data_pointer to a (Elf64_Sym *) pointer
+  //Elf64_Sym * strtab_data = (Elf64_Sym *) symtab_data_pointer;
+  //gets number of symbols
+  //uint32_t num_symbols = symbol_table_section.sh_size;
+
+
+  //iterate through all the symbols
+  for (uint32_t i=0; i<num_symbols; i++) {
+    Elf64_Sym curr = symbol_table_data[i];
+    const char * symbol_name = strtab_data_pointer + curr.st_name;
+    printf("Symbol %ld: name=%s, size=%lx, info=%lx, other=%lx\n", i, symbol_name, curr.st_size, curr.st_info, curr.st_other);
+  }
+
+  
+
+  
+ // cout << symbol_table_section.sh_name << endl;
+ // cout << symbol_table_section.sh_type << endl;
+ // cout << symbol_table_section.sh_flags << endl;
+ // cout << symbol_table_section.sh_addr << endl;
+//
+ // cout << symbol_table_section.sh_offset << endl;
+ // cout << symbol_table_section.sh_size << endl;
+//
+ // cout << symbol_table_section.sh_link << endl;
+ // cout << symbol_table_section.sh_info << endl;
+ // cout << symbol_table_section.sh_addralign << endl;
+ // cout << symbol_table_section.sh_entsize << endl;
 
 }
