@@ -50,4 +50,12 @@ int main(int argc, char **argv) {
   printf(".shstrtab section index is %u\n", elf_header->e_shstrndx);
   return 0;
 
+  Elf64_Shdr *section_headers = (Elf64_Shdr *) (elf_header + elf_header->e_shoff);
+
+  Elf64_Shdr string_table_section = section_headers[string_table_section_index];
+
+  cout << section_headers[1].sh_name << endl;
+  uint32_t name_index = section_headers[1].sh_name;
+  cout << string_table_section[name_index];
+
 }
