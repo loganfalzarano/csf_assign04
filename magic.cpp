@@ -47,6 +47,12 @@ int main(int argc, char **argv) {
   Elf64_Ehdr *elf_header = (Elf64_Ehdr *) data;
   //cout << ".shstrtab section index is %u\n"
 
+  // Determine whether the opened file is an ELF file
+  if (!(int)elf_header->e_ident[EI_MAG0] == 127 && (elf_header->e_ident[EI_MAG1] == 'E' && elf_header->e_ident[EI_MAG2] == 'L' && elf_header->e_ident[EI_MAG3] == 'F')) {
+    std::cerr << "Not an ELF file" << std::endl;
+    return 1;
+  }
+
   const char * objtype =  get_type_name(elf_header->e_type);
   const char * machtype = get_machine_name(elf_header->e_machine);
   const char * endianness;
